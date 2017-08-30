@@ -69,7 +69,43 @@
           :a1 [::author]
           ::publisher [::publisher]})))
 
+;; ---------
+;; Test binding
+;; ---------
 
+(s/def ::manufacturer-id ::id)
+(s/def ::toy (s/keys :req-un [::id ::manufacturer-id]))
+(s/def ::binkie (s/keys :req-un [::id ::manufacturer-id]))
+
+(s/def ::toy-id ::id)
+(s/def ::binkie-id ::id)
+(s/def ::child (s/keys :req-un [::id ::toy-id ::binkie-id]))
+
+(s/def ::child-id ::id)
+(s/def ::parent (s/keys :req-un [::id ::child-id]))
+
+(def binding-relation-template
+  {::manufacturer[]
+   ::toy [{:manufacturer-id [::manufacturer :id]}]
+   ::binkie [{:manufacturer-id [::manufacturer :id]}]
+   ::child [{:toy-id [::toy :id]
+             :binkie-id [::binkie :id]}]
+   ::parent [{:child-id [::child :id]}]})
+
+(deftest expand-config-bindings
+  (is (= (#'sm/expand-config-refs {:c1 {[::manufacturer :id] :m1}} relation-template)
+         {:c1 [::child {:toy-id :c1-toy
+                        :binkie-id :c1-binkie}]
+          :c1-toy [::toy {:manufacturer-id :m1}]
+          :c1-binkie [::binkie {:manufacturer-id :m1}]})))
+
+(deftest expand-config-bindings-nested
+  (is (= (#'sm/expand-config-refs {:p1 {[::manufacturer :id] :m1}} relation-template)
+         {:p1 [::parent {:child-id :p1-child}]
+          :p1-child [::child {:toy-id :p1-toy
+                              :binkie-id :p1-binkie}]
+          :p1-toy [::toy {:manufacturer-id :m1}]
+          :p1-binkie [::binkie {:manufacturer-id :m1}]})))
 
 (comment
   (insert-all [{:c1 [::chapter]}

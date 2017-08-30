@@ -15,9 +15,8 @@
                               ;;
                               (let [ref-name (get ent-refs template-ref-attr template-ref-type)]
                                 (cond
-                                  ;; if the config manually sets a ref
-                                  ;; value, don't include the ref'd
-                                  ;; type in the final config. also,
+                                  ;; if the config manually sets a ref value, don't
+                                  ;; include the ref'd type in the final config. also,
                                   ;; skip if name is there already
                                   (or (get ent-attrs template-ref-attr)
                                       (and (get expanded-config ref-name)
