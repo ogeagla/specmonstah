@@ -1,0 +1,29 @@
+* Goals
+** allow the output of one call to be the input of another
+** get rid of ::rs/template
+** allow "flat" specification of referred ents
+* Implementation ideas
+** Explicit notions of a database and a query
+*** A query can be used to build a database
+*** A database is used to go from query config to generated query
+** Stages
+*** config
+{:b1 [::book {:author #sm/ref :a1}]}
+*** generated
+*** processed
+** metadata/readers
+*** tag references
+** keep track of name/spec relation in metadata
+*** one large map of {:name ::spec-name}
+** roll query into db
+*** require query always be named?
+** query fn takes a db as an arg
+** query terms are written in vector to preserve order?
+* Considerations
+** bindings
+*** need to continue to be able to specify a ref value across a subtree
+*** maybe implement with reader / metadata
+* Implementation
+** gen-db
+*** insert everything into db, ungen'd
+*** 
