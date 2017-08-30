@@ -1,5 +1,5 @@
 (ns reifyhealth.specmonstah.next-test
-  (:require #?(:clj [clojure.test :refer [deftest is use-fixtures testing]]
+  (:require #?(:clj [clojure.test :refer [deftest is are use-fixtures testing]]
                :cljs [cljs.test :include-macros true])
             [clojure.spec.alpha :as s]
             [clojure.test.check.generators :as gen :include-macros true]
@@ -58,6 +58,15 @@
           :b1 [::book {:author-id ::author
                        :publisher-id ::publisher}]
           ::author [::author]
+          ::publisher [::publisher]})))
+
+(deftest expand-config-refs-deep-multi-refs
+  (is (= (#'sm/expand-config-refs {:b1 [::book {:author-id :a1}]
+                                   :c1 [::chapter {:book-id :b1}]} relation-template)
+         {:c1 [::chapter {:book-id :b1}]
+          :b1 [::book {:author-id :a1
+                       :publisher-id ::publisher}]
+          :a1 [::author]
           ::publisher [::publisher]})))
 
 

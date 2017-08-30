@@ -13,22 +13,24 @@
                  ;; template-ref-type is e.g. ::book
                  (reduce-kv (fn [expanded-config template-ref-attr [template-ref-type]]
                               ;;
-                              (let [ref-name (or (get ent-refs template-ref-attr)
-                                                 template-ref-type)]
+                              (let [ref-name (get ent-refs template-ref-attr template-ref-type)]
                                 (cond
                                   ;; if the config manually sets a ref
                                   ;; value, don't include the ref'd
                                   ;; type in the final config. also,
                                   ;; skip if name is there already
-                                  (get ent-attrs template-ref-attr)
+                                  (or (get ent-attrs template-ref-attr)
+                                      (and (get expanded-config ref-name)
+                                           (not= ref-name template-ref-type)))
                                   expanded-config
 
-                                  ;; handles case where refs are provided by relation template
+                                  ;; refs are provided by relation template
                                   (= ref-name template-ref-type)
                                   (cond-> (update-in expanded-config [ent-name 1] assoc template-ref-attr ref-name)
                                     (not (get expanded-config template-ref-type))
                                     (merge (expand-config {template-ref-type [template-ref-type]} relation-template)))
 
+                                  ;; custom named ref, not defined in config
                                   :else
                                   (merge expanded-config
                                          (expand-config {ref-name [template-ref-type]} relation-template)))))
