@@ -144,7 +144,7 @@
                                :binkie-id :r1/binkie}]
           :r1/toy    [::toy {:manufacturer-id :m1}]
           :r1/binkie [::binkie {:manufacturer-id :m1}]
-          :m1        [::manufacturer {q}]})))
+          :m1        [::manufacturer {}]})))
 
 #_(deftest expand-config-bindings-nested
   (is (= (#'sm/expand-config-bindings {:p1 {[::manufacturer :id] :m1}} relation-template)

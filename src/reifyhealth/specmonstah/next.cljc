@@ -7,34 +7,6 @@
             [clojure.set :as set])
   (:refer-clojure :exclude [doall]))
 
-(defn- ent-references
-  "Returns `[ent-type ent-name]` pairs from a ref map"
-  [refs]
-  (->> refs
-       vals
-       (map #(vec (take 2 %)))
-       set))
-
-(defn- relation-template-graph
-  [relation-template]
-  (->> relation-template
-       (medley/map-vals (comp #(map first %) vals first))
-       (reduce-kv (fn [node-pairs ent-type ref-types]
-                    (into node-pairs (map (partial vector ent-type) ref-types)))
-                  [])
-       (apply lg/digraph)))
-
-(defn- digraph-slice
-  [graph start end]
-  (lg/subgraph graph
-               (set/intersection (-> (ld/subgraph-reachable-from graph start)
-                                     lg/nodes
-                                     set)
-                                 (-> (lg/transpose graph)
-                                     (ld/subgraph-reachable-from end)
-                                     lg/nodes
-                                     set))))
-
 (defn expand-config-refs
   [config relation-template]
   (reduce-kv (fn [expanded-config ent-name [ent-type ent-refs ent-attrs]]
@@ -68,6 +40,26 @@
                             ent-template-refs)))
              config
              config))
+
+(defn- relation-template-graph
+  [relation-template]
+  (->> relation-template
+       (medley/map-vals (comp #(map first %) vals first))
+       (reduce-kv (fn [node-pairs ent-type ref-types]
+                    (into node-pairs (map (partial vector ent-type) ref-types)))
+                  [])
+       (apply lg/digraph)))
+
+(defn- digraph-slice
+  [graph start end]
+  (lg/subgraph graph
+               (set/intersection (-> (ld/subgraph-reachable-from graph start)
+                                     lg/nodes
+                                     set)
+                                 (-> (lg/transpose graph)
+                                     (ld/subgraph-reachable-from end)
+                                     lg/nodes
+                                     set))))
 
 (defn binding-graph
   "Return a subgraph of all nodes that need to be "
