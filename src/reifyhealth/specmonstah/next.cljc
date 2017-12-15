@@ -41,12 +41,15 @@
              config
              config))
 
+
 (defn- relation-template-graph
   [relation-template]
   (->> relation-template
-       (medley/map-vals (comp #(map first %) vals first))
-       (reduce-kv (fn [node-pairs ent-type ref-types]
-                    (into node-pairs (map (partial vector ent-type) ref-types)))
+       (reduce-kv (fn [node-pairs ent-type ent-relations]
+                    (into node-pairs (->> ent-relations
+                                          first
+                                          vals
+                                          (map (comp (partial vector ent-type) first)))))
                   [])
        (apply lg/digraph)))
 
