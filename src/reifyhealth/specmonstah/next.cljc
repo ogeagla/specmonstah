@@ -76,7 +76,7 @@
       (digraph-slice start end)))
 
 (defn expand-config-binding
-  [config ent-name ent-type ent-ref-attr ent-ref-name relation-template binding-nodes]
+  [config ent-name ent-type base-name ent-ref-attr ent-ref-name relation-template binding-nodes]
   (let [relation-map      (-> (get-in relation-template [ent-type 0])
                               (set/map-invert))
         relation-type-map (medley/map-keys first relation-map)
@@ -88,13 +88,14 @@
     (reduce (fn [config binding-node]
               (if-let [binding-graph-ref-attr (binding-node relation-type-map)]
                 (let [binding-graph-ref-path [ent-name 1 binding-graph-ref-attr]
-                      binding-graph-ref-name (get-in config binding-graph-ref-path (keyword (name ent-name) (name binding-node)))]
+                      binding-graph-ref-name (get-in config binding-graph-ref-path (keyword (name base-name) (name binding-node)))]
                   (expand-config-binding (assoc-in config binding-graph-ref-path binding-graph-ref-name)
                                          binding-graph-ref-name
                                          binding-node
+                                         base-name
                                          ent-ref-attr
                                          ent-ref-name
-                                         relation-type-map
+                                         relation-template
                                          binding-nodes))
                 config))
             (assoc config ent-name ent-config)
@@ -109,6 +110,7 @@
                               (expand-config-binding expanded-config
                                                      ent-name
                                                      ent-type
+                                                     ent-name
                                                      ent-ref-attr
                                                      ent-ref-name
                                                      relation-template
