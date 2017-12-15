@@ -9,8 +9,16 @@
 ** Stages
 *** config
 {:b1 [::book {:author #sm/ref :a1}]}
-*** generated
-*** processed
+*** generate
+**** creates a map of generated records
+**** generates in topo order
+*** process
+**** e.g. inserted in db
+**** captured with metadata?
+**** or - always just tag generated with metadata?
+**** has to be done in order
+*** access
+**** easier destructuring
 ** metadata/readers
 *** tag references
 ** keep track of name/spec relation in metadata
@@ -23,7 +31,47 @@
 ** bindings
 *** need to continue to be able to specify a ref value across a subtree
 *** maybe implement with reader / metadata
+** anonymity
+*** add something without having to name it explicitly
+*** gen names by type and index, e.g. ::book-1
 * Implementation
 ** gen-db
 *** insert everything into db, ungen'd
-*** 
+** expand-config-refs
+*** be more explicit about expansion cases
+** write a glossary of terms
+*** config: description of what to generate
+** functions to navigate data
+*** leaf nodes
+*** navigate by type
+*** does order matter?
+** binding
+*** for start node, get all child nodes that are in the subgraph
+*** if a child node already exists, follow it. if it doesn't, create it
+*** for each node
+**** check whether binding ref exists, and bind it if it does not
+**** check if children are in sub-graph, and travel to each child
+**** recursively apply
+* Glossary
+** config
+Shorthand, describes what records should be generated. Needs expansion for generation
+** expanded config
+describes exactly what should get generated
+** generation
+** database
+the entire collection of records that have been generated
+** process
+returns a new database?
+** relation template
+** relation
+** entity
+* Next steps 2017-12-14
+** continue expand-config-bindings
+[[file:~/projects/web/specmonsta/src/reifyhealth/specmonstah/next.cljc::%3B%3B%20walk%20all%20the%20ents,%20create][config bindings]]
+
+- create a digraph-slice from the relation-template to determine all
+  the pairs that will need to be generated to support the creation of
+  the binding
+- create a sub-config that will get merged with the main config. the
+  main config takes precedence as it contains user-provided values for
+  refs that may have been generated
